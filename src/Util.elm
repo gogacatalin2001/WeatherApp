@@ -6,7 +6,7 @@ import Html exposing (a)
 import Html exposing (li)
 import Chart exposing (list)
 import Html exposing (ol)
-import Set exposing (Set)
+import Maybe exposing (withDefault)
 
 
 {-| Description for minimumBy
@@ -23,10 +23,9 @@ minimumBy criteria list =
     if list == [] then
         Nothing
     else
-        let
-            l = List.sortBy criteria list
-        in 
-           List.head l
+        list
+            |> List.sortBy criteria
+            |> List.head
 
 
 {-| Description for maximumBy
@@ -44,14 +43,14 @@ maximumBy criteria list =
         Nothing
     else
         let
-            l = List.sortBy criteria list
+            lst = List.sortBy criteria list
             lastElem ls= 
                 case ls of
                     [] -> Nothing
                     [last] -> Just last
                     _::xs -> lastElem xs
         in 
-           lastElem l
+           lastElem lst
 
 
 {-| Group a list
@@ -99,8 +98,9 @@ groupBy criteria list =
 -}
 maybeToList : Maybe a -> List a
 maybeToList elem =
-    []
-    -- Debug.todo "Implement maybeToList in Util.elm"
+    case elem of
+        Just e -> [e]
+        Nothing -> []
 
 {-| Filters a list based on a list of bools
 
@@ -112,6 +112,12 @@ maybeToList elem =
 
 -}
 zipFilter : List Bool -> List a -> List a
-zipFilter _ _ =
-    []
-    -- Debug.todo "Implement Util.zipFilter"
+zipFilter mask list =
+    let
+        pairs =
+            List.map2 Tuple.pair mask list
+    in
+        pairs
+            |> List.filter (\(x,_) -> x == True)
+            |> List.unzip
+            |> Tuple.second
