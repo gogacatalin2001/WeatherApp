@@ -25,5 +25,5 @@ Some relevant functions:
 -}
 view : DailyData -> Html msg
 view _ =
-    -- div [] []
-    Debug.todo "Implement View.Day.view"
+    div [] []
+    -- Debug.todo "Implement View.Day.view"

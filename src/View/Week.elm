@@ -21,5 +21,5 @@ Some relevant functions:
 -}
 view : WeeklyData -> Html msg
 view _ =
-    -- div [] []
-    Debug.todo "Implement View.Week.view"
+    div [] []
+    -- Debug.todo "Implement View.Week.view"

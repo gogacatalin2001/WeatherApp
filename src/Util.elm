@@ -2,6 +2,11 @@ module Util exposing (groupBy, maximumBy, maybeToList, minimumBy, zipFilter)
 
 {-| Module containing utility functions
 -}
+import Html exposing (a)
+import Html exposing (li)
+import Chart exposing (list)
+import Html exposing (ol)
+import Set exposing (Set)
 
 
 {-| Description for minimumBy
@@ -14,9 +19,14 @@ module Util exposing (groupBy, maximumBy, maybeToList, minimumBy, zipFilter)
 
 -}
 minimumBy : (a -> comparable) -> List a -> Maybe a
-minimumBy _ _ =
-    -- Nothging
-    Debug.todo "Implement Util.minimumBy"
+minimumBy criteria list =
+    if list == [] then
+        Nothing
+    else
+        let
+            l = List.sortBy criteria list
+        in 
+           List.head l
 
 
 {-| Description for maximumBy
@@ -29,9 +39,19 @@ minimumBy _ _ =
 
 -}
 maximumBy : (a -> comparable) -> List a -> Maybe a
-maximumBy _ _ =
-    -- Nothging
-    Debug.todo "Implement Util.maximumBy"
+maximumBy criteria list =
+    if list == [] then
+        Nothing
+    else
+        let
+            l = List.sortBy criteria list
+            lastElem ls= 
+                case ls of
+                    [] -> Nothing
+                    [last] -> Just last
+                    _::xs -> lastElem xs
+        in 
+           lastElem l
 
 
 {-| Group a list
@@ -44,9 +64,30 @@ maximumBy _ _ =
 
 -}
 groupBy : (a -> b) -> List a -> List ( b, List a )
-groupBy _ _ =
-    -- []
-    Debug.todo "Implement Util.groupBy"
+groupBy criteria list =
+    let
+        unique lst = 
+            List.foldl
+                (\a uniques ->
+                    if List.member a uniques then
+                        uniques
+                    else
+                        uniques ++ [a]
+                )
+                [] 
+                lst
+        keys = 
+            list
+                |> List.map criteria
+                |> unique
+        
+        group kl lst =
+            case kl of
+                [] -> []
+                k::ks ->
+                    (k, List.filter (\x -> criteria x == k) lst) :: group ks lst
+    in
+        group keys list
 
 
 {-| Transforms a Maybe into a List with one element for Just, and an empty list for Nothing
@@ -57,10 +98,9 @@ groupBy _ _ =
 
 -}
 maybeToList : Maybe a -> List a
-maybeToList _ =
-    -- []
-    Debug.todo "Implement Util.maybeToList"
-
+maybeToList elem =
+    []
+    -- Debug.todo "Implement maybeToList in Util.elm"
 
 {-| Filters a list based on a list of bools
 
@@ -73,5 +113,5 @@ maybeToList _ =
 -}
 zipFilter : List Bool -> List a -> List a
 zipFilter _ _ =
-    -- []
-    Debug.todo "Implement Util.zipFilter"
+    []
+    -- Debug.todo "Implement Util.zipFilter"

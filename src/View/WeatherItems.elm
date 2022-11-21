@@ -21,5 +21,5 @@ type alias MsgMap msg =
 
 view : MsgMap msg -> SelectedWeatherItems -> Html msg
 view _ _ =
-    -- div [] []
-    Debug.todo "view"
+    div [] []
+    -- Debug.todo "view"
