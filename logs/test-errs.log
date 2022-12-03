@@ -1,73 +1,33 @@
-/home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:559
-			throw new Error('TODO in module `' + moduleName + '` ' + _Debug_regionToString(region) + '\n\n' + message);
-			^
+-- TYPE MISMATCH - /home/gogacatalin2001/University/FP/WeatherApp/src/Model/WeatherData.elm
 
-Error: TODO in module `Model.WeatherData` on line 124
+The 2nd argument to `map3` is not what I expect:
 
-decodeWeatherData
-    at _Debug_crash (/home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:559:10)
-    at /home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:315:3
-    at /home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:11980:4
-    at /home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:20722:132
-    at Object.<anonymous> (/home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:20724:3)
-    at Module._compile (internal/modules/cjs/loader.js:999:30)
-    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1027:10)
-    at Module.load (internal/modules/cjs/loader.js:863:32)
-    at Function.Module._load (internal/modules/cjs/loader.js:708:14)
-    at Function.executeUserEntryPoint [as runMain] (internal/modules/run_main.js:60:12)
+81|         List.map3 (\x y z -> HourlyDataPoint x y z) (Time.millisToPosix hourlyData.times) hourlyData.temperatures hourlyData.precipitation
+                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+This `millisToPosix` call produces:
 
+    Time.Posix
 
-There was an unexpected runtime exception while running tests
+But `map3` needs the 2nd argument to be:
 
+    List Time.Posix
 
-/home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:559
-			throw new Error('TODO in module `' + moduleName + '` ' + _Debug_regionToString(region) + '\n\n' + message);
-			^
+Hint: I always figure out the argument types from left to right. If an argument
+is acceptable, I assume it is “correct” and move on. So the problem may actually
+be in one of the previous arguments!
 
-Error: TODO in module `Model.WeatherData` on line 124
+-- TYPE MISMATCH - /home/gogacatalin2001/University/FP/WeatherApp/src/Model/WeatherData.elm
 
-decodeWeatherData
-    at _Debug_crash (/home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:559:10)
-    at /home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:315:3
-    at /home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:11980:4
-    at /home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:20722:132
-    at Object.<anonymous> (/home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:20724:3)
-    at Module._compile (internal/modules/cjs/loader.js:999:30)
-    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1027:10)
-    at Module.load (internal/modules/cjs/loader.js:863:32)
-    at Function.Module._load (internal/modules/cjs/loader.js:708:14)
-    at Function.executeUserEntryPoint [as runMain] (internal/modules/run_main.js:60:12)
-/home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:559
-			throw new Error('TODO in module `' + moduleName + '` ' + _Debug_regionToString(region) + '\n\n' + message);
-			^
+The 1st argument to `millisToPosix` is not what I expect:
 
-Error: TODO in module `Model.WeatherData` on line 124
+81|         List.map3 (\x y z -> HourlyDataPoint x y z) (Time.millisToPosix hourlyData.times) hourlyData.temperatures hourlyData.precipitation
+                                                                            ^^^^^^^^^^^^^^^^
+The value at .times is a:
 
-decodeWeatherData
-    at _Debug_crash (/home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:559:10)
-    at /home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:315:3
-    at /home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:11980:4
-    at /home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:20722:132
-    at Object.<anonymous> (/home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:20724:3)
-    at Module._compile (internal/modules/cjs/loader.js:999:30)
-    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1027:10)
-    at Module.load (internal/modules/cjs/loader.js:863:32)
-    at Function.Module._load (internal/modules/cjs/loader.js:708:14)
-    at Function.executeUserEntryPoint [as runMain] (internal/modules/run_main.js:60:12)
-/home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:559
-			throw new Error('TODO in module `' + moduleName + '` ' + _Debug_regionToString(region) + '\n\n' + message);
-			^
+    List Int
 
-Error: TODO in module `Model.WeatherData` on line 124
+But `millisToPosix` needs the 1st argument to be:
 
-decodeWeatherData
-    at _Debug_crash (/home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:559:10)
-    at /home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:315:3
-    at /home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:11980:4
-    at /home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:20722:132
-    at Object.<anonymous> (/home/gogacatalin2001/University/FP/WeatherApp/elm-stuff/generated-code/elm-community/elm-test/0.19.1-revision10/elmTestOutput.js:20724:3)
-    at Module._compile (internal/modules/cjs/loader.js:999:30)
-    at Object.Module._extensions..js (internal/modules/cjs/loader.js:1027:10)
-    at Module.load (internal/modules/cjs/loader.js:863:32)
-    at Function.Module._load (internal/modules/cjs/loader.js:708:14)
-    at Function.executeUserEntryPoint [as runMain] (internal/modules/run_main.js:60:12)
+    Int
+
+`elm make` failed with exit code 1.

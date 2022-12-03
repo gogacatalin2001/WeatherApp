@@ -109,31 +109,31 @@ update msg model =
     let
         ( newState, cmd ) =
             case ( msg, model.state ) of
-                -- ( GotTime time, _ ) ->
-                --     ( Model.HaveTime { time = time }
-                --     , getWeather model.config.apiUrl
-                --     )
+                ( GotTime time, _ ) ->
+                    ( Model.HaveTime { time = time }
+                    , getWeather model.config.apiUrl
+                    )
 
-                -- ( GotWeather res, Model.HaveTime state ) ->
-                --     case res of
-                --         Ok weather ->
-                --             ( Model.HaveWeatherAndTime
-                --                 { time = adjustTime weather.utcOffset state.time
-                --                 , weather = weather
-                --                 , hovering = []
-                --                 , selectedItems = Model.WeatherItems.allSelected
-                --                 }
-                --             , Cmd.none
-                --             )
+                ( GotWeather res, Model.HaveTime state ) ->
+                    case res of
+                        Ok weather ->
+                            ( Model.HaveWeatherAndTime
+                                { time = adjustTime weather.utcOffset state.time
+                                , weather = weather
+                                , hovering = []
+                                , selectedItems = Model.WeatherItems.allSelected
+                                }
+                            , Cmd.none
+                            )
 
-                --         Err err ->
-                --             ( Model.FailedToLoad, Cmd.none )
+                        Err err ->
+                            ( Model.FailedToLoad, Cmd.none )
 
-                -- ( OnHover hovering, Model.HaveWeatherAndTime data ) ->
-                --     ( Model.HaveWeatherAndTime { data | hovering = hovering }, Cmd.none )
+                ( OnHover hovering, Model.HaveWeatherAndTime data ) ->
+                    ( Model.HaveWeatherAndTime { data | hovering = hovering }, Cmd.none )
 
-                -- ( ChangeWeatherItemSelection item newValue, _ ) ->
-                --     ( model.state, Cmd.none )
+                ( ChangeWeatherItemSelection item newValue, _ ) ->
+                    ( model.state, Cmd.none )
                     -- Debug.todo "Handle the ChangeWeatherItemSelection message in update"
 
                 _ ->

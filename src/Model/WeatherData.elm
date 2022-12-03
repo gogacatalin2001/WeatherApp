@@ -7,8 +7,9 @@ module Model.WeatherData exposing
     , toHourlyDataPoints
     )
 
-import Json.Decode as De
+import Json.Decode as Dec exposing (..)
 import Time
+import Iso8601
 
 
 {-| Don't modify
@@ -72,9 +73,12 @@ To handle this:
 
 -}
 toHourlyDataPoints : ApiWeatherData -> List HourlyDataPoint
-toHourlyDataPoints _ =
-    -- []
-    Debug.todo "toHourlyDataPoints"
+toHourlyDataPoints apiWeatherData =
+    let
+        hourlyData = apiWeatherData.hourly
+        utcOffset = apiWeatherData.utcOffset
+    in
+        List.map3 (\x y z -> HourlyDataPoint (Time.millisToPosix x) y z) hourlyData.times hourlyData.temperatures hourlyData.precipitation
 
 
 {-| Decode the hourly data according to <https://open-meteo.com/en/docs#api-documentation>
@@ -87,7 +91,7 @@ Relevant fields:
 
 Some relevant functions (see Lab 7 and the [Json.Decode] module documentation for more details):
 
-  - [Json.Decode.list]
+  - [Json.Decode.list].
   - [Json.Decode.field]
   - [Json.Decode.map3]
 
@@ -97,9 +101,12 @@ Some relevant functions (see Lab 7 and the [Json.Decode] module documentation fo
 [Json.Decode.map3]: https://package.elm-lang.org/packages/elm/json/latest/Json-Decode#map3
 
 -}
-decodeHourlyData : De.Decoder ApiHourlyData
+decodeHourlyData : Dec.Decoder ApiHourlyData
 decodeHourlyData =
-    Debug.todo "decodeHourlyData"
+    Dec.map3 ApiHourlyData
+        (Dec.field "time" (Dec.list Dec.int))
+        (Dec.field "temperature_2m" (Dec.list Dec.float))
+        (Dec.field "precipitation" (Dec.list Dec.float))
 
 
 {-| Decode the weather data according to <https://open-meteo.com/en/docs#api-documentation>
@@ -119,6 +126,8 @@ Some relevant functions (see Lab 7 and the [Json.Decode] module documentation fo
 [Json.Decode.map2]: https://package.elm-lang.org/packages/elm/json/latest/Json-Decode#map2
 
 -}
-decodeWeatherData : De.Decoder ApiWeatherData
+decodeWeatherData : Dec.Decoder ApiWeatherData
 decodeWeatherData =
-    Debug.todo "decodeWeatherData"
+    Dec.map2 ApiWeatherData
+        (Dec.field "hourly" decodeHourlyData)
+        (Dec.field "utc_offset_seconds" Dec.int)

@@ -4145,7 +4145,199 @@ function _VirtualDom_dekey(keyedNode)
 		b: keyedNode.b
 	};
 }
-var $elm$core$List$cons = _List_cons;
+
+
+
+// SEND REQUEST
+
+var _Http_toTask = F3(function(router, toTask, request)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		function done(response) {
+			callback(toTask(request.expect.a(response)));
+		}
+
+		var xhr = new XMLHttpRequest();
+		xhr.addEventListener('error', function() { done($elm$http$Http$NetworkError_); });
+		xhr.addEventListener('timeout', function() { done($elm$http$Http$Timeout_); });
+		xhr.addEventListener('load', function() { done(_Http_toResponse(request.expect.b, xhr)); });
+		$elm$core$Maybe$isJust(request.tracker) && _Http_track(router, xhr, request.tracker.a);
+
+		try {
+			xhr.open(request.method, request.url, true);
+		} catch (e) {
+			return done($elm$http$Http$BadUrl_(request.url));
+		}
+
+		_Http_configureRequest(xhr, request);
+
+		request.body.a && xhr.setRequestHeader('Content-Type', request.body.a);
+		xhr.send(request.body.b);
+
+		return function() { xhr.c = true; xhr.abort(); };
+	});
+});
+
+
+// CONFIGURE
+
+function _Http_configureRequest(xhr, request)
+{
+	for (var headers = request.headers; headers.b; headers = headers.b) // WHILE_CONS
+	{
+		xhr.setRequestHeader(headers.a.a, headers.a.b);
+	}
+	xhr.timeout = request.timeout.a || 0;
+	xhr.responseType = request.expect.d;
+	xhr.withCredentials = request.allowCookiesFromOtherDomains;
+}
+
+
+// RESPONSES
+
+function _Http_toResponse(toBody, xhr)
+{
+	return A2(
+		200 <= xhr.status && xhr.status < 300 ? $elm$http$Http$GoodStatus_ : $elm$http$Http$BadStatus_,
+		_Http_toMetadata(xhr),
+		toBody(xhr.response)
+	);
+}
+
+
+// METADATA
+
+function _Http_toMetadata(xhr)
+{
+	return {
+		url: xhr.responseURL,
+		statusCode: xhr.status,
+		statusText: xhr.statusText,
+		headers: _Http_parseHeaders(xhr.getAllResponseHeaders())
+	};
+}
+
+
+// HEADERS
+
+function _Http_parseHeaders(rawHeaders)
+{
+	if (!rawHeaders)
+	{
+		return $elm$core$Dict$empty;
+	}
+
+	var headers = $elm$core$Dict$empty;
+	var headerPairs = rawHeaders.split('\r\n');
+	for (var i = headerPairs.length; i--; )
+	{
+		var headerPair = headerPairs[i];
+		var index = headerPair.indexOf(': ');
+		if (index > 0)
+		{
+			var key = headerPair.substring(0, index);
+			var value = headerPair.substring(index + 2);
+
+			headers = A3($elm$core$Dict$update, key, function(oldValue) {
+				return $elm$core$Maybe$Just($elm$core$Maybe$isJust(oldValue)
+					? value + ', ' + oldValue.a
+					: value
+				);
+			}, headers);
+		}
+	}
+	return headers;
+}
+
+
+// EXPECT
+
+var _Http_expect = F3(function(type, toBody, toValue)
+{
+	return {
+		$: 0,
+		d: type,
+		b: toBody,
+		a: toValue
+	};
+});
+
+var _Http_mapExpect = F2(function(func, expect)
+{
+	return {
+		$: 0,
+		d: expect.d,
+		b: expect.b,
+		a: function(x) { return func(expect.a(x)); }
+	};
+});
+
+function _Http_toDataView(arrayBuffer)
+{
+	return new DataView(arrayBuffer);
+}
+
+
+// BODY and PARTS
+
+var _Http_emptyBody = { $: 0 };
+var _Http_pair = F2(function(a, b) { return { $: 0, a: a, b: b }; });
+
+function _Http_toFormData(parts)
+{
+	for (var formData = new FormData(); parts.b; parts = parts.b) // WHILE_CONS
+	{
+		var part = parts.a;
+		formData.append(part.a, part.b);
+	}
+	return formData;
+}
+
+var _Http_bytesToBlob = F2(function(mime, bytes)
+{
+	return new Blob([bytes], { type: mime });
+});
+
+
+// PROGRESS
+
+function _Http_track(router, xhr, tracker)
+{
+	// TODO check out lengthComputable on loadstart event
+
+	xhr.upload.addEventListener('progress', function(event) {
+		if (xhr.c) { return; }
+		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Sending({
+			sent: event.loaded,
+			size: event.total
+		}))));
+	});
+	xhr.addEventListener('progress', function(event) {
+		if (xhr.c) { return; }
+		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Receiving({
+			received: event.loaded,
+			size: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
+		}))));
+	});
+}
+
+function _Url_percentEncode(string)
+{
+	return encodeURIComponent(string);
+}
+
+function _Url_percentDecode(string)
+{
+	try
+	{
+		return $elm$core$Maybe$Just(decodeURIComponent(string));
+	}
+	catch (e)
+	{
+		return $elm$core$Maybe$Nothing;
+	}
+}var $elm$core$List$cons = _List_cons;
 var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
 var $elm$core$Array$foldr = F3(
 	function (func, baseCase, _v0) {
@@ -4225,10 +4417,7 @@ var $elm$core$Set$toList = function (_v0) {
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
-var $author$project$Test$Reporter$Reporter$ConsoleReport = function (a) {
-	return {$: 'ConsoleReport', a: a};
-};
-var $author$project$Console$Text$Monochrome = {$: 'Monochrome'};
+var $author$project$Test$Reporter$Reporter$JsonReport = {$: 'JsonReport'};
 var $elm$core$Debug$todo = _Debug_todo;
 var $author$project$Test$Runner$Node$checkHelperReplaceMe___ = function (_v0) {
 	return _Debug_todo(
@@ -9316,13 +9505,22 @@ var $elm_explorations$test$Test$test = F2(
 						]);
 				}));
 	});
-var $author$project$Model$WeatherData$toHourlyDataPoints = function (_v0) {
-	return _Debug_todo(
-		'Model.WeatherData',
-		{
-			start: {line: 77, column: 5},
-			end: {line: 77, column: 15}
-		})('toHourlyDataPoints');
+var $author$project$Model$WeatherData$toHourlyDataPoints = function (apiWeatherData) {
+	var utcOffset = apiWeatherData.utcOffset;
+	var hourlyData = apiWeatherData.hourly;
+	return A4(
+		$elm$core$List$map3,
+		F3(
+			function (x, y, z) {
+				return A3(
+					$author$project$Model$WeatherData$HourlyDataPoint,
+					$elm$time$Time$millisToPosix(x),
+					y,
+					z);
+			}),
+		hourlyData.times,
+		hourlyData.temperatures,
+		hourlyData.precipitation);
 };
 var $author$project$VerifyExamples$Model$WeatherData$ToHourlyDataPoints0$weatherData = {hourly: $author$project$VerifyExamples$Model$WeatherData$ToHourlyDataPoints0$hourlyData, utcOffset: 7200};
 var $author$project$VerifyExamples$Model$WeatherData$ToHourlyDataPoints0$spec0 = A2(
@@ -9439,9 +9637,55 @@ var $author$project$VerifyExamples$Model$WeatherItems$Set0$spec0 = A2(
 				A3($author$project$Model$WeatherItems$set, $author$project$Model$WeatherItems$Precipitation, false, $author$project$Model$WeatherItems$allSelected)),
 			true);
 	});
+var $elm$core$List$member = F2(
+	function (x, xs) {
+		return A2(
+			$elm$core$List$any,
+			function (a) {
+				return _Utils_eq(a, x);
+			},
+			xs);
+	});
 var $author$project$Util$groupBy = F2(
 	function (criteria, list) {
-		return _List_Nil;
+		var unique = function (lst) {
+			return A3(
+				$elm$core$List$foldl,
+				F2(
+					function (a, uniques) {
+						return A2($elm$core$List$member, a, uniques) ? uniques : _Utils_ap(
+							uniques,
+							_List_fromArray(
+								[a]));
+					}),
+				_List_Nil,
+				lst);
+		};
+		var keys = unique(
+			A2($elm$core$List$map, criteria, list));
+		var group = F2(
+			function (kl, lst) {
+				if (!kl.b) {
+					return _List_Nil;
+				} else {
+					var k = kl.a;
+					var ks = kl.b;
+					return A2(
+						$elm$core$List$cons,
+						_Utils_Tuple2(
+							k,
+							A2(
+								$elm$core$List$filter,
+								function (x) {
+									return _Utils_eq(
+										criteria(x),
+										k);
+								},
+								lst)),
+						A2(group, ks, lst));
+				}
+			});
+		return A2(group, keys, list);
 	});
 var $author$project$VerifyExamples$Util$GroupBy0$spec0 = A2(
 	$elm_explorations$test$Test$test,
@@ -9457,6 +9701,7 @@ var $author$project$Util$maximumBy = F2(
 		if (_Utils_eq(list, _List_Nil)) {
 			return $elm$core$Maybe$Nothing;
 		} else {
+			var lst = A2($elm$core$List$sortBy, criteria, list);
 			var lastElem = function (ls) {
 				lastElem:
 				while (true) {
@@ -9475,8 +9720,7 @@ var $author$project$Util$maximumBy = F2(
 					}
 				}
 			};
-			var l = A2($elm$core$List$sortBy, criteria, list);
-			return lastElem(l);
+			return lastElem(lst);
 		}
 	});
 var $elm$core$Basics$modBy = _Basics_modBy;
@@ -9494,7 +9738,13 @@ var $author$project$VerifyExamples$Util$MaximumBy0$spec0 = A2(
 			$elm$core$Maybe$Just(16));
 	});
 var $author$project$Util$maybeToList = function (elem) {
-	return _List_Nil;
+	if (elem.$ === 'Just') {
+		var e = elem.a;
+		return _List_fromArray(
+			[e]);
+	} else {
+		return _List_Nil;
+	}
 };
 var $author$project$VerifyExamples$Util$MaybeToList0$spec0 = A2(
 	$elm_explorations$test$Test$test,
@@ -9516,12 +9766,8 @@ var $elm$core$List$head = function (list) {
 };
 var $author$project$Util$minimumBy = F2(
 	function (criteria, list) {
-		if (_Utils_eq(list, _List_Nil)) {
-			return $elm$core$Maybe$Nothing;
-		} else {
-			var l = A2($elm$core$List$sortBy, criteria, list);
-			return $elm$core$List$head(l);
-		}
+		return _Utils_eq(list, _List_Nil) ? $elm$core$Maybe$Nothing : $elm$core$List$head(
+			A2($elm$core$List$sortBy, criteria, list));
 	});
 var $author$project$VerifyExamples$Util$MinimumBy0$spec0 = A2(
 	$elm_explorations$test$Test$test,
@@ -9537,8 +9783,16 @@ var $author$project$VerifyExamples$Util$MinimumBy0$spec0 = A2(
 			$elm$core$Maybe$Just(23));
 	});
 var $author$project$Util$zipFilter = F2(
-	function (_v0, _v1) {
-		return _List_Nil;
+	function (mask, list) {
+		var pairs = A3($elm$core$List$map2, $elm$core$Tuple$pair, mask, list);
+		return $elm$core$List$unzip(
+			A2(
+				$elm$core$List$filter,
+				function (_v0) {
+					var x = _v0.a;
+					return x;
+				},
+				pairs)).b;
 	});
 var $author$project$VerifyExamples$Util$ZipFilter0$spec0 = A2(
 	$elm_explorations$test$Test$test,
@@ -9900,15 +10154,6 @@ var $elm$core$Dict$filter = F2(
 var $elm_explorations$test$Test$Html$Internal$ElmHtml$Constants$styleKey = 'a1';
 var $elm_explorations$test$Test$Html$Internal$ElmHtml$Constants$knownKeys = _List_fromArray(
 	[$elm_explorations$test$Test$Html$Internal$ElmHtml$Constants$styleKey, $elm_explorations$test$Test$Html$Internal$ElmHtml$Constants$eventKey, $elm_explorations$test$Test$Html$Internal$ElmHtml$Constants$attributeKey, $elm_explorations$test$Test$Html$Internal$ElmHtml$Constants$attributeNamespaceKey]);
-var $elm$core$List$member = F2(
-	function (x, xs) {
-		return A2(
-			$elm$core$List$any,
-			function (a) {
-				return _Utils_eq(a, x);
-			},
-			xs);
-	});
 var $elm_explorations$test$Test$Html$Internal$ElmHtml$Helpers$filterKnownKeys = $elm$core$Dict$filter(
 	F2(
 		function (key, _v0) {
@@ -11406,9 +11651,73 @@ var $elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $author$project$View$Day$view = function (_v0) {
-	return A2($elm$html$Html$div, _List_Nil, _List_Nil);
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$View$Day$view = function (data) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('day')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('day-date')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Util$Time$formatDate(data.date))
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('day-hightemp')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						'H: ' + $elm$core$String$fromFloat(
+							A2($elm$core$Maybe$withDefault, 0, data.highTemp)))
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('day-lowtemp')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						'L: ' + $elm$core$String$fromFloat(
+							A2($elm$core$Maybe$withDefault, 0, data.lowTemp)))
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('day-precipitation')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						'Total precipitation: ' + $elm$core$String$fromFloat(data.totalPrecipitaion))
+					]))
+			]));
 };
 var $author$project$DayViewTests$testDayViewMatchesSelectors = function (_v0) {
 	var description = _v0.description;
@@ -11760,10 +12069,431 @@ var $elm_explorations$test$Test$Html$Selector$Internal$Tag = function (a) {
 var $elm_explorations$test$Test$Html$Selector$tag = function (name) {
 	return $elm_explorations$test$Test$Html$Selector$Internal$Tag(name);
 };
+var $author$project$Model$FailedToLoad = {$: 'FailedToLoad'};
+var $author$project$Model$HaveTime = function (a) {
+	return {$: 'HaveTime', a: a};
+};
+var $author$project$Main$adjustTime = F2(
+	function (offset, time) {
+		return $elm$time$Time$millisToPosix(
+			function (m) {
+				return m + (1000 * offset);
+			}(
+				$elm$time$Time$posixToMillis(time)));
+	});
+var $author$project$Main$GotWeather = function (a) {
+	return {$: 'GotWeather', a: a};
+};
+var $elm$url$Url$Builder$toQueryPair = function (_v0) {
+	var key = _v0.a;
+	var value = _v0.b;
+	return key + ('=' + value);
+};
+var $elm$url$Url$Builder$toQuery = function (parameters) {
+	if (!parameters.b) {
+		return '';
+	} else {
+		return '?' + A2(
+			$elm$core$String$join,
+			'&',
+			A2($elm$core$List$map, $elm$url$Url$Builder$toQueryPair, parameters));
+	}
+};
+var $elm$url$Url$Builder$crossOrigin = F3(
+	function (prePath, pathSegments, parameters) {
+		return prePath + ('/' + (A2($elm$core$String$join, '/', pathSegments) + $elm$url$Url$Builder$toQuery(parameters)));
+	});
+var $author$project$Model$WeatherData$ApiWeatherData = F2(
+	function (hourly, utcOffset) {
+		return {hourly: hourly, utcOffset: utcOffset};
+	});
+var $author$project$Model$WeatherData$ApiHourlyData = F3(
+	function (times, temperatures, precipitation) {
+		return {precipitation: precipitation, temperatures: temperatures, times: times};
+	});
+var $author$project$Model$WeatherData$decodeHourlyData = A4(
+	$elm$json$Json$Decode$map3,
+	$author$project$Model$WeatherData$ApiHourlyData,
+	A2(
+		$elm$json$Json$Decode$field,
+		'time',
+		$elm$json$Json$Decode$list($elm$json$Json$Decode$int)),
+	A2(
+		$elm$json$Json$Decode$field,
+		'temperature_2m',
+		$elm$json$Json$Decode$list($elm$json$Json$Decode$float)),
+	A2(
+		$elm$json$Json$Decode$field,
+		'precipitation',
+		$elm$json$Json$Decode$list($elm$json$Json$Decode$float)));
+var $author$project$Model$WeatherData$decodeWeatherData = A3(
+	$elm$json$Json$Decode$map2,
+	$author$project$Model$WeatherData$ApiWeatherData,
+	A2($elm$json$Json$Decode$field, 'hourly', $author$project$Model$WeatherData$decodeHourlyData),
+	A2($elm$json$Json$Decode$field, 'utc_offset_seconds', $elm$json$Json$Decode$int));
+var $elm$json$Json$Decode$decodeString = _Json_runOnString;
+var $elm$http$Http$BadStatus_ = F2(
+	function (a, b) {
+		return {$: 'BadStatus_', a: a, b: b};
+	});
+var $elm$http$Http$BadUrl_ = function (a) {
+	return {$: 'BadUrl_', a: a};
+};
+var $elm$http$Http$GoodStatus_ = F2(
+	function (a, b) {
+		return {$: 'GoodStatus_', a: a, b: b};
+	});
+var $elm$http$Http$NetworkError_ = {$: 'NetworkError_'};
+var $elm$http$Http$Receiving = function (a) {
+	return {$: 'Receiving', a: a};
+};
+var $elm$http$Http$Sending = function (a) {
+	return {$: 'Sending', a: a};
+};
+var $elm$http$Http$Timeout_ = {$: 'Timeout_'};
+var $elm$core$Maybe$isJust = function (maybe) {
+	if (maybe.$ === 'Just') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $elm$core$Platform$sendToSelf = _Platform_sendToSelf;
+var $elm$core$Dict$update = F3(
+	function (targetKey, alter, dictionary) {
+		var _v0 = alter(
+			A2($elm$core$Dict$get, targetKey, dictionary));
+		if (_v0.$ === 'Just') {
+			var value = _v0.a;
+			return A3($elm$core$Dict$insert, targetKey, value, dictionary);
+		} else {
+			return A2($elm$core$Dict$remove, targetKey, dictionary);
+		}
+	});
+var $elm$http$Http$expectStringResponse = F2(
+	function (toMsg, toResult) {
+		return A3(
+			_Http_expect,
+			'',
+			$elm$core$Basics$identity,
+			A2($elm$core$Basics$composeR, toResult, toMsg));
+	});
+var $elm$core$Result$mapError = F2(
+	function (f, result) {
+		if (result.$ === 'Ok') {
+			var v = result.a;
+			return $elm$core$Result$Ok(v);
+		} else {
+			var e = result.a;
+			return $elm$core$Result$Err(
+				f(e));
+		}
+	});
+var $elm$http$Http$BadBody = function (a) {
+	return {$: 'BadBody', a: a};
+};
+var $elm$http$Http$BadStatus = function (a) {
+	return {$: 'BadStatus', a: a};
+};
+var $elm$http$Http$BadUrl = function (a) {
+	return {$: 'BadUrl', a: a};
+};
+var $elm$http$Http$NetworkError = {$: 'NetworkError'};
+var $elm$http$Http$Timeout = {$: 'Timeout'};
+var $elm$http$Http$resolve = F2(
+	function (toResult, response) {
+		switch (response.$) {
+			case 'BadUrl_':
+				var url = response.a;
+				return $elm$core$Result$Err(
+					$elm$http$Http$BadUrl(url));
+			case 'Timeout_':
+				return $elm$core$Result$Err($elm$http$Http$Timeout);
+			case 'NetworkError_':
+				return $elm$core$Result$Err($elm$http$Http$NetworkError);
+			case 'BadStatus_':
+				var metadata = response.a;
+				return $elm$core$Result$Err(
+					$elm$http$Http$BadStatus(metadata.statusCode));
+			default:
+				var body = response.b;
+				return A2(
+					$elm$core$Result$mapError,
+					$elm$http$Http$BadBody,
+					toResult(body));
+		}
+	});
+var $elm$http$Http$expectJson = F2(
+	function (toMsg, decoder) {
+		return A2(
+			$elm$http$Http$expectStringResponse,
+			toMsg,
+			$elm$http$Http$resolve(
+				function (string) {
+					return A2(
+						$elm$core$Result$mapError,
+						$elm$json$Json$Decode$errorToString,
+						A2($elm$json$Json$Decode$decodeString, decoder, string));
+				}));
+	});
+var $elm$http$Http$emptyBody = _Http_emptyBody;
+var $elm$http$Http$Request = function (a) {
+	return {$: 'Request', a: a};
+};
+var $elm$http$Http$State = F2(
+	function (reqs, subs) {
+		return {reqs: reqs, subs: subs};
+	});
+var $elm$http$Http$init = $elm$core$Task$succeed(
+	A2($elm$http$Http$State, $elm$core$Dict$empty, _List_Nil));
+var $elm$core$Process$kill = _Scheduler_kill;
+var $elm$core$Process$spawn = _Scheduler_spawn;
+var $elm$http$Http$updateReqs = F3(
+	function (router, cmds, reqs) {
+		updateReqs:
+		while (true) {
+			if (!cmds.b) {
+				return $elm$core$Task$succeed(reqs);
+			} else {
+				var cmd = cmds.a;
+				var otherCmds = cmds.b;
+				if (cmd.$ === 'Cancel') {
+					var tracker = cmd.a;
+					var _v2 = A2($elm$core$Dict$get, tracker, reqs);
+					if (_v2.$ === 'Nothing') {
+						var $temp$router = router,
+							$temp$cmds = otherCmds,
+							$temp$reqs = reqs;
+						router = $temp$router;
+						cmds = $temp$cmds;
+						reqs = $temp$reqs;
+						continue updateReqs;
+					} else {
+						var pid = _v2.a;
+						return A2(
+							$elm$core$Task$andThen,
+							function (_v3) {
+								return A3(
+									$elm$http$Http$updateReqs,
+									router,
+									otherCmds,
+									A2($elm$core$Dict$remove, tracker, reqs));
+							},
+							$elm$core$Process$kill(pid));
+					}
+				} else {
+					var req = cmd.a;
+					return A2(
+						$elm$core$Task$andThen,
+						function (pid) {
+							var _v4 = req.tracker;
+							if (_v4.$ === 'Nothing') {
+								return A3($elm$http$Http$updateReqs, router, otherCmds, reqs);
+							} else {
+								var tracker = _v4.a;
+								return A3(
+									$elm$http$Http$updateReqs,
+									router,
+									otherCmds,
+									A3($elm$core$Dict$insert, tracker, pid, reqs));
+							}
+						},
+						$elm$core$Process$spawn(
+							A3(
+								_Http_toTask,
+								router,
+								$elm$core$Platform$sendToApp(router),
+								req)));
+				}
+			}
+		}
+	});
+var $elm$http$Http$onEffects = F4(
+	function (router, cmds, subs, state) {
+		return A2(
+			$elm$core$Task$andThen,
+			function (reqs) {
+				return $elm$core$Task$succeed(
+					A2($elm$http$Http$State, reqs, subs));
+			},
+			A3($elm$http$Http$updateReqs, router, cmds, state.reqs));
+	});
+var $elm$http$Http$maybeSend = F4(
+	function (router, desiredTracker, progress, _v0) {
+		var actualTracker = _v0.a;
+		var toMsg = _v0.b;
+		return _Utils_eq(desiredTracker, actualTracker) ? $elm$core$Maybe$Just(
+			A2(
+				$elm$core$Platform$sendToApp,
+				router,
+				toMsg(progress))) : $elm$core$Maybe$Nothing;
+	});
+var $elm$http$Http$onSelfMsg = F3(
+	function (router, _v0, state) {
+		var tracker = _v0.a;
+		var progress = _v0.b;
+		return A2(
+			$elm$core$Task$andThen,
+			function (_v1) {
+				return $elm$core$Task$succeed(state);
+			},
+			$elm$core$Task$sequence(
+				A2(
+					$elm$core$List$filterMap,
+					A3($elm$http$Http$maybeSend, router, tracker, progress),
+					state.subs)));
+	});
+var $elm$http$Http$Cancel = function (a) {
+	return {$: 'Cancel', a: a};
+};
+var $elm$http$Http$cmdMap = F2(
+	function (func, cmd) {
+		if (cmd.$ === 'Cancel') {
+			var tracker = cmd.a;
+			return $elm$http$Http$Cancel(tracker);
+		} else {
+			var r = cmd.a;
+			return $elm$http$Http$Request(
+				{
+					allowCookiesFromOtherDomains: r.allowCookiesFromOtherDomains,
+					body: r.body,
+					expect: A2(_Http_mapExpect, func, r.expect),
+					headers: r.headers,
+					method: r.method,
+					timeout: r.timeout,
+					tracker: r.tracker,
+					url: r.url
+				});
+		}
+	});
+var $elm$http$Http$MySub = F2(
+	function (a, b) {
+		return {$: 'MySub', a: a, b: b};
+	});
+var $elm$http$Http$subMap = F2(
+	function (func, _v0) {
+		var tracker = _v0.a;
+		var toMsg = _v0.b;
+		return A2(
+			$elm$http$Http$MySub,
+			tracker,
+			A2($elm$core$Basics$composeR, toMsg, func));
+	});
+_Platform_effectManagers['Http'] = _Platform_createManager($elm$http$Http$init, $elm$http$Http$onEffects, $elm$http$Http$onSelfMsg, $elm$http$Http$cmdMap, $elm$http$Http$subMap);
+var $elm$http$Http$command = _Platform_leaf('Http');
+var $elm$http$Http$subscription = _Platform_leaf('Http');
+var $elm$http$Http$request = function (r) {
+	return $elm$http$Http$command(
+		$elm$http$Http$Request(
+			{allowCookiesFromOtherDomains: false, body: r.body, expect: r.expect, headers: r.headers, method: r.method, timeout: r.timeout, tracker: r.tracker, url: r.url}));
+};
+var $elm$http$Http$get = function (r) {
+	return $elm$http$Http$request(
+		{body: $elm$http$Http$emptyBody, expect: r.expect, headers: _List_Nil, method: 'GET', timeout: $elm$core$Maybe$Nothing, tracker: $elm$core$Maybe$Nothing, url: r.url});
+};
+var $elm$url$Url$Builder$QueryParameter = F2(
+	function (a, b) {
+		return {$: 'QueryParameter', a: a, b: b};
+	});
+var $elm$url$Url$percentEncode = _Url_percentEncode;
+var $elm$url$Url$Builder$string = F2(
+	function (key, value) {
+		return A2(
+			$elm$url$Url$Builder$QueryParameter,
+			$elm$url$Url$percentEncode(key),
+			$elm$url$Url$percentEncode(value));
+	});
+var $author$project$Main$getWeather = function (apiUrl) {
+	var queryParams = $elm$core$List$concat(
+		_List_fromArray(
+			[
+				_List_fromArray(
+				[
+					A2(
+					$elm$url$Url$Builder$string,
+					'latitude',
+					$elm$core$String$fromFloat(46.77)),
+					A2(
+					$elm$url$Url$Builder$string,
+					'longitude',
+					$elm$core$String$fromFloat(23.6)),
+					A2($elm$url$Url$Builder$string, 'timezone', 'auto'),
+					A2($elm$url$Url$Builder$string, 'timeformat', 'unixtime')
+				]),
+				A2(
+				$elm$core$List$map,
+				$elm$url$Url$Builder$string('hourly'),
+				_List_fromArray(
+					['temperature_2m', 'precipitation']))
+			]));
+	return $elm$http$Http$get(
+		{
+			expect: A2($elm$http$Http$expectJson, $author$project$Main$GotWeather, $author$project$Model$WeatherData$decodeWeatherData),
+			url: A3(
+				$elm$url$Url$Builder$crossOrigin,
+				apiUrl,
+				_List_fromArray(
+					['v1', 'forecast']),
+				queryParams)
+		});
+};
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		var _v0 = function () {
 			var _v1 = _Utils_Tuple2(msg, model.state);
+			_v1$4:
+			while (true) {
+				switch (_v1.a.$) {
+					case 'GotTime':
+						var time = _v1.a.a;
+						return _Utils_Tuple2(
+							$author$project$Model$HaveTime(
+								{time: time}),
+							$author$project$Main$getWeather(model.config.apiUrl));
+					case 'GotWeather':
+						if (_v1.b.$ === 'HaveTime') {
+							var res = _v1.a.a;
+							var state = _v1.b.a;
+							if (res.$ === 'Ok') {
+								var weather = res.a;
+								return _Utils_Tuple2(
+									$author$project$Model$HaveWeatherAndTime(
+										{
+											hovering: _List_Nil,
+											selectedItems: $author$project$Model$WeatherItems$allSelected,
+											time: A2($author$project$Main$adjustTime, weather.utcOffset, state.time),
+											weather: weather
+										}),
+									$elm$core$Platform$Cmd$none);
+							} else {
+								var err = res.a;
+								return _Utils_Tuple2($author$project$Model$FailedToLoad, $elm$core$Platform$Cmd$none);
+							}
+						} else {
+							break _v1$4;
+						}
+					case 'OnHover':
+						if (_v1.b.$ === 'HaveWeatherAndTime') {
+							var hovering = _v1.a.a;
+							var data = _v1.b.a;
+							return _Utils_Tuple2(
+								$author$project$Model$HaveWeatherAndTime(
+									_Utils_update(
+										data,
+										{hovering: hovering})),
+								$elm$core$Platform$Cmd$none);
+						} else {
+							break _v1$4;
+						}
+					case 'ChangeWeatherItemSelection':
+						var _v3 = _v1.a;
+						var item = _v3.a;
+						var newValue = _v3.b;
+						return _Utils_Tuple2(model.state, $elm$core$Platform$Cmd$none);
+					default:
+						break _v1$4;
+				}
+			}
 			return _Utils_Tuple2(model.state, $elm$core$Platform$Cmd$none);
 		}();
 		var newState = _v0.a;
@@ -11775,8 +12505,6 @@ var $author$project$Main$update = F2(
 			cmd);
 	});
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$view = function (model) {
 	var _v0 = model.state;
 	switch (_v0.$) {
@@ -12054,19 +12782,6 @@ var $author$project$MainTests$suite = A2(
 						}));
 			})
 		]));
-var $author$project$Model$WeatherData$decodeHourlyData = _Debug_todo(
-	'Model.WeatherData',
-	{
-		start: {line: 102, column: 5},
-		end: {line: 102, column: 15}
-	})('decodeHourlyData');
-var $elm$json$Json$Decode$decodeString = _Json_runOnString;
-var $author$project$Model$WeatherData$decodeWeatherData = _Debug_todo(
-	'Model.WeatherData',
-	{
-		start: {line: 124, column: 5},
-		end: {line: 124, column: 15}
-	})('decodeWeatherData');
 var $elm_explorations$test$Test$Runner$Failure$Comparison = F2(
 	function (a, b) {
 		return {$: 'Comparison', a: a, b: b};
@@ -12233,17 +12948,6 @@ var $elm_explorations$test$Test$Html$Event$findEvent = F2(
 				return eventDecoder(node);
 		}
 	});
-var $elm$core$Result$mapError = F2(
-	function (f, result) {
-		if (result.$ === 'Ok') {
-			var v = result.a;
-			return $elm$core$Result$Ok(v);
-		} else {
-			var e = result.a;
-			return $elm$core$Result$Err(
-				f(e));
-		}
-	});
 var $elm_explorations$test$Test$Html$Event$findHandler = function (_v0) {
 	var _v1 = _v0.a;
 	var eventName = _v1.a;
@@ -12399,8 +13103,26 @@ var $author$project$WeatherItemsViewTests$suite = A2(
 										$author$project$Model$WeatherItems$allSelected))))));
 			})
 		]));
-var $author$project$View$Week$view = function (_v0) {
-	return A2($elm$html$Html$div, _List_Nil, _List_Nil);
+var $author$project$View$Week$view = function (data) {
+	var renderDailyData = function (dataList) {
+		if (!dataList.b) {
+			return A2($elm$html$Html$div, _List_Nil, _List_Nil);
+		} else {
+			var d = dataList.a;
+			var ds = dataList.b;
+			return $author$project$View$Day$view(d);
+		}
+	};
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('week')
+			]),
+		_List_fromArray(
+			[
+				renderDailyData(data.dailyData)
+			]));
 };
 var $author$project$WeekViewTests$suite = function () {
 	var sampleDailyData = {
@@ -12739,7 +13461,7 @@ var $author$project$Test$Generated$Main$main = A2(
 		paths: _List_fromArray(
 			['/home/gogacatalin2001/University/FP/WeatherApp/tests/DayViewTests.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/MainTests.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Model/WeatherData/ToHourlyDataPoints0.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Model/WeatherItems/AllSelected0.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Model/WeatherItems/AllSelected1.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Model/WeatherItems/IsItemSelected0.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Model/WeatherItems/Set0.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Model/WeatherItems/Set1.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Util/GroupBy0.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Util/GroupBy1.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Util/GroupBy2.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Util/MaximumBy0.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Util/MaximumBy1.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Util/MaximumBy2.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Util/MaybeToList0.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Util/MaybeToList1.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Util/MinimumBy0.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Util/MinimumBy1.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Util/MinimumBy2.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Util/ZipFilter0.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Util/ZipFilter1.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/VerifyExamples/Util/ZipFilter2.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/WeatherDataTests.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/WeatherItemsViewTests.elm', '/home/gogacatalin2001/University/FP/WeatherApp/tests/WeekViewTests.elm']),
 		processes: 4,
-		report: $author$project$Test$Reporter$Reporter$ConsoleReport($author$project$Console$Text$Monochrome),
+		report: $author$project$Test$Reporter$Reporter$JsonReport,
 		runs: 100,
 		seed: 376158560164992
 	},
@@ -12904,7 +13626,7 @@ var $author$project$Test$Generated$Main$main = A2(
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "/tmp/elm_test-9027.sock";
+var pipeFilename = "/tmp/elm_test-24702.sock";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 

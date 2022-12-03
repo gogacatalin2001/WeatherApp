@@ -35,7 +35,7 @@ main : Test.Runner.Node.TestProgram
 main =
     Test.Runner.Node.run
         { runs = 100
-        , report = ConsoleReport Monochrome
+        , report = JsonReport
         , seed = 376158560164992
         , processes = 4
         , globs =
