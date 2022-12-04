@@ -78,7 +78,7 @@ toHourlyDataPoints apiWeatherData =
         hourlyData = apiWeatherData.hourly
         utcOffset = apiWeatherData.utcOffset
     in
-        List.map3 (\x y z -> HourlyDataPoint (Time.millisToPosix x) y z) hourlyData.times hourlyData.temperatures hourlyData.precipitation
+        List.map3 (\x y z -> HourlyDataPoint (Time.millisToPosix ((x + utcOffset) * 1000)) y z) hourlyData.times hourlyData.temperatures hourlyData.precipitation
 
 
 {-| Decode the hourly data according to <https://open-meteo.com/en/docs#api-documentation>

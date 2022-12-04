@@ -89,3 +89,12 @@ set item value current =
 
         CurrentTime ->
             { current | currentTime = value }
+
+
+-- selectedItems : SelectedWeatherItems -> SelectedWeatherItems
+-- selectedItems current = 
+--     { temperature = isItemSelected Temperature current
+--     , precipitation = isItemSelected Precipitation current
+--     , minMax = isItemSelected MinMax current
+--     , currentTime = isItemSelected CurrentTime current
+--     }

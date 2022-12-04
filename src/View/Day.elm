@@ -25,10 +25,26 @@ Some relevant functions:
 
 -}
 view : DailyData -> Html msg
-view data =
+view dailyData =
     div [ class "day" ]
-      [ div [ class "day-date" ] [ text <| formatDate data.date ]
-      , div [ class "day-hightemp" ] [ text <| "H: " ++ String.fromFloat (Maybe.withDefault 0 data.highTemp) ]
-      , div [ class "day-lowtemp" ] [ text <| "L: " ++ String.fromFloat (Maybe.withDefault 0 data.lowTemp) ]
-      , div [ class "day-precipitation" ] [ text <| "Total precipitation: " ++ String.fromFloat data.totalPrecipitaion ]
+      [ div [ class "day-date" ] 
+        [ text <| formatDate dailyData.date ]
+      , div [ class "day-hightemp" ] 
+        [ text 
+            <|
+              case dailyData.highTemp of
+                Nothing -> "unavailable"
+                _ -> "H: " ++ String.fromFloat (Maybe.withDefault 0.0 dailyData.highTemp) 
+        ]
+      , div [ class "day-lowtemp" ] 
+        [ text 
+            <| 
+              case dailyData.lowTemp of
+                Nothing -> "unavailable"
+                _ -> "L: " ++ String.fromFloat (Maybe.withDefault 0.0 dailyData.lowTemp) 
+        ]
+      , div [ class "day-precipitation" ] 
+        [ text 
+            <| "Total precipitation: " ++ String.fromFloat dailyData.totalPrecipitaion 
+        ]
       ]

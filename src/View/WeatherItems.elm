@@ -20,6 +20,11 @@ type alias MsgMap msg =
 
 
 view : MsgMap msg -> SelectedWeatherItems -> Html msg
-view _ _ =
+view msgMap { temperature, precipitation, minMax, currentTime } =
     div [] []
+    -- [ checkbox "Temperature" msgMap.onChangeSelection (Model.WeatherItems.isItemSelected temperature) Temperature-- not working HOW TO CREATE A CHECKBOX??
+    -- , checkbox "Precipitation" msgMap.onChangeSelection (Model.WeatherItems.isItemSelected precipitation) Precipitation
+    -- , checkbox "Min-Max values" msgMap.onChangeSelection (Model.WeatherItems.isItemSelected minMax) MinMax
+    -- , checkbox "Current Time" msgMap.onChangeSelection (Model.WeatherItems.isItemSelected currentTime) CurrentTime
+    -- ]
     -- Debug.todo "view"

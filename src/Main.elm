@@ -17,6 +17,7 @@ import Util.Time
 import View.WeatherChart exposing (showAllItems)
 import View.WeatherItems
 import View.Week
+import View.Day
 
 
 {-| Don't modify
@@ -132,8 +133,10 @@ update msg model =
                 ( OnHover hovering, Model.HaveWeatherAndTime data ) ->
                     ( Model.HaveWeatherAndTime { data | hovering = hovering }, Cmd.none )
 
-                ( ChangeWeatherItemSelection item newValue, _ ) ->
-                    ( model.state, Cmd.none )
+                ( ChangeWeatherItemSelection item newValue, Model.HaveWeatherAndTime data ) ->
+                    ( Model.HaveWeatherAndTime { data | selectedItems = Model.WeatherItems.set item newValue data.selectedItems}
+                    , Cmd.none
+                    )
                     -- Debug.todo "Handle the ChangeWeatherItemSelection message in update"
 
                 _ ->
@@ -151,8 +154,31 @@ Some relevant functions:
 
 -}
 getChartData : Weather -> View.WeatherChart.ChartData
-getChartData _ =
-    Debug.todo "getChartData"
+getChartData weatherData =
+    let
+        now = weatherData.time
+
+        minTempPoint = 
+            weatherData.weather 
+            |> WeatherData.toHourlyDataPoints
+            |> Util.minimumBy .temperature
+
+        maxTempPoint = 
+            weatherData.weather 
+            |> WeatherData.toHourlyDataPoints
+            |> Util.maximumBy .temperature
+        
+        hourlyPoints =
+            weatherData.weather 
+            |> WeatherData.toHourlyDataPoints
+
+        hovering = []
+
+        itemsToShow = View.WeatherChart.showAllItems
+        
+    in
+        View.WeatherChart.ChartData now minTempPoint maxTempPoint hourlyPoints hovering itemsToShow
+    -- Debug.todo "getChartData"
 
 
 {-| Derive (extract) the data required for the weather chart from the state of the app
@@ -166,6 +192,21 @@ Some relevant functions:
 -}
 getWeeklyData : Weather -> View.Week.WeeklyData
 getWeeklyData _ =
+    -- let
+    --     date = Util.Time.posixToDate Time.utc weatherData.time
+    --     hourlyDataPoints = WeatherData.toHourlyDataPoints weatherData.weather
+    --     highTemp = 
+    --         hourlyDataPoints
+    --         |> Util.maximumBy .temperature
+
+    --     lowTemp = 
+    --         hourlyDataPoints
+    --         |> Util.minimumBy .temperature
+    --     precipitationList = List.map (\dp -> dp.precipitation) hourlyDataPoints
+    --     totalPrecipitaion = List.foldl (+) 0 precipitationList
+    --     day = View.Day.DailyData date highTemp lowTemp totalPrecipitaion
+    -- in
+    --     View.Week.WeeklyData [day]
     Debug.todo "getWeeklyData"
 
 
@@ -198,6 +239,6 @@ view model =
                 -- , Debug.todo "Add View.WeatherItems.view"
 
                 -- Comment to make the code compile
-                -- , View.WeatherChart.view { onHover = OnHover } (getChartData data) -- Comment to prevent crash if getChartData is not implemented
+                , View.WeatherChart.view { onHover = OnHover } (getChartData data) -- Comment to prevent crash if getChartData is not implemented
                 -- , View.Week.view (getWeeklyData data) -- Comment to prevent crash if getWeeklyData is not implemented
                 ]

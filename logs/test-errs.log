@@ -1,33 +1,15 @@
 -- TYPE MISMATCH - /home/gogacatalin2001/University/FP/WeatherApp/src/Model/WeatherData.elm
 
-The 2nd argument to `map3` is not what I expect:
+Multiplication does not work with this value:
 
-81|         List.map3 (\x y z -> HourlyDataPoint x y z) (Time.millisToPosix hourlyData.times) hourlyData.temperatures hourlyData.precipitation
-                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+81|         List.map3 (\x y z -> HourlyDataPoint (Time.millisToPosix (x + utcOffset) * 1000) y z) hourlyData.times hourlyData.temperatures hourlyData.precipitation
+                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 This `millisToPosix` call produces:
 
     Time.Posix
 
-But `map3` needs the 2nd argument to be:
+But (*) only works with Int and Float values.
 
-    List Time.Posix
-
-Hint: I always figure out the argument types from left to right. If an argument
-is acceptable, I assume it is “correct” and move on. So the problem may actually
-be in one of the previous arguments!
-
--- TYPE MISMATCH - /home/gogacatalin2001/University/FP/WeatherApp/src/Model/WeatherData.elm
-
-The 1st argument to `millisToPosix` is not what I expect:
-
-81|         List.map3 (\x y z -> HourlyDataPoint x y z) (Time.millisToPosix hourlyData.times) hourlyData.temperatures hourlyData.precipitation
-                                                                            ^^^^^^^^^^^^^^^^
-The value at .times is a:
-
-    List Int
-
-But `millisToPosix` needs the 1st argument to be:
-
-    Int
+Hint: Only Int and Float values work as numbers.
 
 `elm make` failed with exit code 1.
