@@ -20286,13 +20286,63 @@ var $elm_explorations$test$Test$Html$Query$find = F2(
 				$elm_explorations$test$Test$Html$Query$Internal$Find(selectors)));
 	});
 var $elm_explorations$test$Test$Html$Event$simulate = $elm_explorations$test$Test$Html$Event$Event;
+var $elm$html$Html$Attributes$boolProperty = F2(
+	function (key, bool) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$bool(bool));
+	});
+var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
+var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$Events$targetChecked = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'checked']),
+	$elm$json$Json$Decode$bool);
+var $elm$html$Html$Events$onCheck = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'change',
+		A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetChecked));
+};
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
+var $author$project$View$WeatherItems$checkbox = F4(
+	function (name, state, msg, category) {
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'display', 'inline'),
+					$elm$html$Html$Attributes$class('checkbox')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$input,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$type_('checkbox'),
+							$elm$html$Html$Events$onCheck(
+							msg(category)),
+							$elm$html$Html$Attributes$checked(state)
+						]),
+					_List_Nil),
+					$elm$html$Html$text(name)
+				]));
+	});
 var $author$project$View$WeatherItems$view = F2(
-	function (msgMap, _v0) {
-		var temperature = _v0.temperature;
-		var precipitation = _v0.precipitation;
-		var minMax = _v0.minMax;
-		var currentTime = _v0.currentTime;
-		return A2($elm$html$Html$div, _List_Nil, _List_Nil);
+	function (msgMap, selectedItems) {
+		return A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A4($author$project$View$WeatherItems$checkbox, 'Temperature', selectedItems.temperature, msgMap.onChangeSelection, $author$project$Model$WeatherItems$Temperature),
+					A4($author$project$View$WeatherItems$checkbox, 'Precipitation', selectedItems.precipitation, msgMap.onChangeSelection, $author$project$Model$WeatherItems$Precipitation),
+					A4($author$project$View$WeatherItems$checkbox, 'Min-Max values', selectedItems.minMax, msgMap.onChangeSelection, $author$project$Model$WeatherItems$MinMax),
+					A4($author$project$View$WeatherItems$checkbox, 'Current Time', selectedItems.currentTime, msgMap.onChangeSelection, $author$project$Model$WeatherItems$CurrentTime)
+				]));
 	});
 var $author$project$WeatherItemsViewTests$suite = A2(
 	$elm_explorations$test$Test$describe,
@@ -21036,7 +21086,7 @@ var $author$project$Test$Generated$Main$main = A2(
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "/tmp/elm_test-19580.sock";
+var pipeFilename = "/tmp/elm_test-5876.sock";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 
